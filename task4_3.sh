@@ -4,7 +4,7 @@
 # Check options of runing command
 
 E_NOARGS=75
-if [ -z "$2" ] || ! [ -d "$1" ] || [ -n "$3" ]
+if [ $# -ne 2 ] || ! [ -d "$1" ]
 then
 	echo "Usage: $0 path_to_dir backups_count"
 	exit $E_NOARGS
@@ -14,6 +14,8 @@ then
 	echo "backups_count - must be a natural number"
 	exit $E_NOARGS
 fi
+START_PATH=$1
+BACKUPS_COUNT=$2
 
 # Check and create backups folder
 
@@ -26,49 +28,43 @@ fi
 
 # Resolve PATH_TO_DIR
 
-START_PATH=$1
-CURRENT_PATH=`pwd`
-PATH_TO_DIR=$(cd "$START_PATH" && pwd && cd "$CURRENT_PATH")
-
-## if [ "${START_PATH:0:1}" = "." ]
-## then
-##    PATH_TO_DIR=`echo $(pwd)${START_PATH:1:${#START_PATH}}`
-## else
-##    PATH_TO_DIR=`dirname "$1"`
-## fi
+CURRENT_PATH=$(pwd)
+PATH_TO_DIR=$(cd "$START_PATH" && pwd && cd "$CURRENT_PATH" || exit 1)
 echo "PATH_TO_DIR=$PATH_TO_DIR"
 
 # Get new backup base name
 
-## BASE_ARR=(`echo $PATH_TO_DIR | awk 'BEGIN { FS="/" } /1/  {for (i=1; i<=NF; i++) print $i}'`)
-## echo "${b[0]}"
-## echo "${b[1]}"
-## echo "len=${#BASE_ARR[@]}"
-## BASE_NAME=""
-
-## for B_NAME in "${BASE_ARR[@]}"
-## do
-##      BASE_NAME=`echo "$BASE_NAME""$B_NAME""-"`
-## done
-
-BASE_NAME=`echo "${PATH_TO_DIR:1:${#PATH_TO_DIR}}."|tr -s "\/" "-"`
-
+BASE_NAME=$(echo "${PATH_TO_DIR:1:${#PATH_TO_DIR}}."|tr -s "\\/" "-")
 echo "BASE_NAME=$BASE_NAME"
-
-# Check move exist backup
-
-EXIST_BACKUPS=(`ls -t "$BACKUPS_DIR"| grep "$BASE_NAME"[0-9]".tar.gz"`)
-echo "len EXIST_BACKUPS=${#EXIST_BACKUPS[@]}"
-
-
+TEMP_NAME=$("$BASE_NAME""tar.gz.new")
+echo "TEMP_NAME=$TEMP_NAME"
 
 # Create tar gz
 
-## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""0"".tar.gz" "$PATH_TO_DIR"`
-## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""1"".tar.gz" "$PATH_TO_DIR"`
-## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""2"".tar.gz" "$PATH_TO_DIR"`
-## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""3"".tar.gz" "$PATH_TO_DIR"`
-## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""4"".tar.gz" "$PATH_TO_DIR"`
+tar -czf "$BACKUPS_DIR""$TEMP_NAME" "$PATH_TO_DIR"
+
+# Check move exist backup
+
+## EXIST_BACKUPS=($(echo /directory/*mystring*))
+EXIST_BACKUPS=($(ls -t "$BACKUPS_DIR"|grep  "$BASE_NAME[0-9].tar.gz"))
+echo "len EXIST_BACKUPS=${#EXIST_BACKUPS[@]}"
+
+remove_old(){
+	echo "remove=$1"
+}
+
+BACKUPS_DELTA=$(( ${#EXIST_BACKUPS[@]} -  BACKUPS_COUNT ))
+if [ "$BACKUPS_DELTA" -le 0 ]
+then
+	echo
+	remove_old "$BACKUPS_DELTA"
+
+fi
+
+## switch_backups
+
+## remove_old $(( ${#EXIST_BACKUPS[@]} -  BACKUPS_COUNT ))
+
 
 
 
