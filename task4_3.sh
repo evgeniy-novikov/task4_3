@@ -27,19 +27,34 @@ fi
 # Resolve path_to_dir
 
 start_path=$1
-if [ "${start_path:0:1}" = "." ]
-then
-    path_to_dir=`echo $(pwd)${start_path:1:${#start_path}}`
-else
-    path_to_dir=`dirname "$1"`
-fi
-## echo "path_to_dir=$path_to_dir"
+current_path=`pwd`
+path_to_dir=$(cd "$start_path" && pwd && cd "$current_path")
+
+## if [ "${start_path:0:1}" = "." ]
+## then
+##    path_to_dir=`echo $(pwd)${start_path:1:${#start_path}}`
+## else
+##    path_to_dir=`dirname "$1"`
+## fi
+echo "path_to_dir=$path_to_dir"
 
 # Get new backup base name
 
 base_arr=(`echo $path_to_dir | awk 'BEGIN { FS="/" } /1/  {for (i=1; i<=NF; i++) print $i}'`)
 ## echo "${b[0]}"
 ## echo "${b[1]}"
+echo "len=${#base_arr[@]}"
+base_name=""
+
+for b_name in "${base_arr[@]}"
+do
+    base_name=`echo "$base_name""$b_name""-"`
+done
+echo "base_name=$base_name"
+
+# Create tar gz
+
+tar -cvzf `echo "$BACKUPS_DIR""$base_name""0"".tar.gz" "$path_to_dir"`
 
 
 
