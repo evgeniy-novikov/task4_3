@@ -24,37 +24,37 @@ then
 	mkdir "$BACKUPS_DIR"
 fi
 
-# Resolve path_to_dir
+# Resolve PATH_TO_DIR
 
-start_path=$1
-current_path=`pwd`
-path_to_dir=$(cd "$start_path" && pwd && cd "$current_path")
+START_PATH=$1
+CURRENT_PATH=`pwd`
+PATH_TO_DIR=$(cd "$START_PATH" && pwd && cd "$CURRENT_PATH")
 
-## if [ "${start_path:0:1}" = "." ]
+## if [ "${START_PATH:0:1}" = "." ]
 ## then
-##    path_to_dir=`echo $(pwd)${start_path:1:${#start_path}}`
+##    PATH_TO_DIR=`echo $(pwd)${START_PATH:1:${#START_PATH}}`
 ## else
-##    path_to_dir=`dirname "$1"`
+##    PATH_TO_DIR=`dirname "$1"`
 ## fi
-echo "path_to_dir=$path_to_dir"
+echo "PATH_TO_DIR=$PATH_TO_DIR"
 
 # Get new backup base name
 
-base_arr=(`echo $path_to_dir | awk 'BEGIN { FS="/" } /1/  {for (i=1; i<=NF; i++) print $i}'`)
+BASE_ARR=(`echo $PATH_TO_DIR | awk 'BEGIN { FS="/" } /1/  {for (i=1; i<=NF; i++) print $i}'`)
 ## echo "${b[0]}"
 ## echo "${b[1]}"
-echo "len=${#base_arr[@]}"
-base_name=""
+echo "len=${#BASE_ARR[@]}"
+BASE_NAME=""
 
-for b_name in "${base_arr[@]}"
+for B_NAME in "${BASE_ARR[@]}"
 do
-    base_name=`echo "$base_name""$b_name""-"`
+    BASE_NAME=`echo "$BASE_NAME""$B_NAME""-"`
 done
-echo "base_name=$base_name"
+echo "BASE_NAME=$BASE_NAME"
 
 # Create tar gz
 
-tar -cvzf `echo "$BACKUPS_DIR""$base_name""0"".tar.gz" "$path_to_dir"`
+tar -cvzf `echo "$BACKUPS_DIR""$BASE_NAME""0"".tar.gz" "$PATH_TO_DIR"`
 
 
 
