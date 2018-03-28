@@ -4,7 +4,7 @@
 # Check options of runing command
 
 E_NOARGS=75
-if [ -z "$2" ] || ! [ -d "$1" ]
+if [ -z "$2" ] || ! [ -d "$1" ] || [ -n "$3" ]
 then
 	echo "Usage: $0 path_to_dir backups_count"
 	exit $E_NOARGS
@@ -40,21 +40,35 @@ echo "PATH_TO_DIR=$PATH_TO_DIR"
 
 # Get new backup base name
 
-BASE_ARR=(`echo $PATH_TO_DIR | awk 'BEGIN { FS="/" } /1/  {for (i=1; i<=NF; i++) print $i}'`)
+## BASE_ARR=(`echo $PATH_TO_DIR | awk 'BEGIN { FS="/" } /1/  {for (i=1; i<=NF; i++) print $i}'`)
 ## echo "${b[0]}"
 ## echo "${b[1]}"
-echo "len=${#BASE_ARR[@]}"
-BASE_NAME=""
+## echo "len=${#BASE_ARR[@]}"
+## BASE_NAME=""
 
-for B_NAME in "${BASE_ARR[@]}"
-do
-    BASE_NAME=`echo "$BASE_NAME""$B_NAME""-"`
-done
+## for B_NAME in "${BASE_ARR[@]}"
+## do
+##      BASE_NAME=`echo "$BASE_NAME""$B_NAME""-"`
+## done
+
+BASE_NAME=`echo "${PATH_TO_DIR:1:${#PATH_TO_DIR}}."|tr -s "\/" "-"`
+
 echo "BASE_NAME=$BASE_NAME"
+
+# Check move exist backup
+
+EXIST_BACKUPS=(`ls -t "$BACKUPS_DIR"| grep "$BASE_NAME"[0-9]".tar.gz"`)
+echo "len EXIST_BACKUPS=${#EXIST_BACKUPS[@]}"
+
+
 
 # Create tar gz
 
-tar -cvzf `echo "$BACKUPS_DIR""$BASE_NAME""0"".tar.gz" "$PATH_TO_DIR"`
+## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""0"".tar.gz" "$PATH_TO_DIR"`
+## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""1"".tar.gz" "$PATH_TO_DIR"`
+## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""2"".tar.gz" "$PATH_TO_DIR"`
+## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""3"".tar.gz" "$PATH_TO_DIR"`
+## tar -czf `echo "$BACKUPS_DIR""$BASE_NAME""4"".tar.gz" "$PATH_TO_DIR"`
 
 
 
